@@ -2,8 +2,31 @@ create or replace package body bl
 
 as
 
+	procedure log_to_file (
+		lineout						in				varchar2
+		, level						in				number
+	)
+
+	as
+
+		file_name					varchar2(200) := 'test.log';
+		file_pointer				utl_file.file_type;
+
+	begin
+
+		file_pointer := utl_file.fopen(bl.bl_directory_name, file_name, 'A', 32760);
+		utl_file.put_line(file_pointer, lineout);
+		utl_file.fclose(file_pointer);
+
+		exception
+			when others then
+				raise;
+
+	end log_to_file;
+
 	procedure log_table_create (
 		lineout						in				varchar2
+		, level						in				number
 	)
 	
 	as
@@ -18,12 +41,14 @@ as
 	
 
 		-- Create the table
-		bl_table_create_stmt := 'create table ' || bl.bl_table_name || '(ldate timestamp, llevel number, lmodule varchar2(4000), laction varchar2(4000), lline varchar2(4000))';
+		bl_table_create_stmt := 'create table ' || bl.bl_table_name || '(ldate timestamp, llevel varchar2(100), lmodule varchar2(4000), laction varchar2(4000), lline varchar2(4000))';
 		execute immediate bl_table_create_stmt;
+
+		dbms_application_info.read_module(grabbed_module, grabbed_action);
 
 		-- Insert the row that caught the exception
 		bl_table_insert_stmt := 'insert into ' || bl_table_name || '(ldate, llevel, lmodule, laction, lline) values (:ldate, :llevel, :lmodule, :laction, :lline)';
-		execute immediate bl_table_insert_stmt using systimestamp, 1, 'test', 'test', lineout;
+		execute immediate bl_table_insert_stmt using systimestamp, bl.bl_level_names(level), grabbed_module, grabbed_action, lineout;
 	
 	
 		exception
@@ -34,6 +59,7 @@ as
 
 	procedure log_to_table (
 		lineout						in				varchar2
+		, level						in				number
 	)
 	
 	as
@@ -52,12 +78,11 @@ as
 
 		-- Define insert statement
 		bl_table_insert_stmt := 'insert into ' || bl_table_name || '(ldate, llevel, lmodule, laction, lline) values (:ldate, :llevel, :lmodule, :laction, :lline)';
-		execute immediate bl_table_insert_stmt using systimestamp, 1, 'test', 'test', lineout;
-	
+		execute immediate bl_table_insert_stmt using systimestamp, bl.bl_level_names(level), grabbed_module, grabbed_action, lineout;
 	
 		exception
 			when bl_table_not_created then
-				log_table_create(lineout);
+				log_table_create(lineout, level);
 			when others then
 				raise;
 	
@@ -79,7 +104,9 @@ as
 				when 1 then
 					dbms_output.put_line(lineout);
 				when 2 then
-					log_to_table(lineout);
+					log_to_table(lineout, level);
+				when 3 then
+					log_to_file(lineout, level);
 				else
 					dbms_output.put_line(lineout);
 			end case;
@@ -294,6 +321,10 @@ begin
 
 	dbms_application_info.set_client_info('bl');
 	dbms_session.set_identifier('bl');
+
+	bl.bl_level_names(1) := 'DEBUG';
+	bl.bl_level_names(2) := 'TRACE';
+	bl.bl_level_names(3) := 'LOG';
 
 end bl;
 /

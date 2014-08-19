@@ -9,8 +9,11 @@ as
 	*/
 	p_version			varchar2(50) 		:= '0.0.1';
 
+	-- Helper types
+	type num_arr is table of varchar2(4000) index by pls_integer;
+
 	-- BL Settings
-	bl_type_set			number				:= 1;
+	bl_type_set			number				:= 3;
 	bl_linesize			pls_integer			:= 80;
 	bl_seperator		varchar2(50)		:= ' ';
 
@@ -19,6 +22,7 @@ as
 	bl_trace			number				:= 2;
 	bl_debug			number				:= 1;
 	bl_default_level	number				:= bl.bl_log;
+	bl_level_names		num_arr;
 
 	-- BL DBMS_OUTPUT settings
 	bl_dbms_output		number 				:= 1;
