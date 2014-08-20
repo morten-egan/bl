@@ -9,7 +9,7 @@ as
 
 	as
 
-		file_name					varchar2(200) := 'test.log';
+		file_name					varchar2(200) := user || '_' || sys_context('USERENV', 'SESSIONID') || '_bl.log';
 		file_pointer				utl_file.file_type;
 
 	begin
@@ -41,14 +41,14 @@ as
 	
 
 		-- Create the table
-		bl_table_create_stmt := 'create table ' || bl.bl_table_name || '(ldate timestamp, llevel varchar2(100), lmodule varchar2(4000), laction varchar2(4000), lline varchar2(4000))';
+		bl_table_create_stmt := 'create table ' || bl.bl_table_name || '(ldate timestamp, luser varchar2(60), llevel varchar2(100), lmodule varchar2(4000), laction varchar2(4000), lline varchar2(4000))';
 		execute immediate bl_table_create_stmt;
 
 		dbms_application_info.read_module(grabbed_module, grabbed_action);
 
 		-- Insert the row that caught the exception
-		bl_table_insert_stmt := 'insert into ' || bl_table_name || '(ldate, llevel, lmodule, laction, lline) values (:ldate, :llevel, :lmodule, :laction, :lline)';
-		execute immediate bl_table_insert_stmt using systimestamp, bl.bl_level_names(level), grabbed_module, grabbed_action, lineout;
+		bl_table_insert_stmt := 'insert into ' || bl_table_name || '(ldate, luser, llevel, lmodule, laction, lline) values (:ldate, :llevel, :lmodule, :laction, :lline)';
+		execute immediate bl_table_insert_stmt using systimestamp, user, bl.bl_level_names(level), grabbed_module, grabbed_action, lineout;
 	
 	
 		exception
@@ -77,8 +77,8 @@ as
 		dbms_application_info.read_module(grabbed_module, grabbed_action);
 
 		-- Define insert statement
-		bl_table_insert_stmt := 'insert into ' || bl_table_name || '(ldate, llevel, lmodule, laction, lline) values (:ldate, :llevel, :lmodule, :laction, :lline)';
-		execute immediate bl_table_insert_stmt using systimestamp, bl.bl_level_names(level), grabbed_module, grabbed_action, lineout;
+		bl_table_insert_stmt := 'insert into ' || bl_table_name || '(ldate, luser, llevel, lmodule, laction, lline) values (:ldate, :llevel, :lmodule, :laction, :lline)';
+		execute immediate bl_table_insert_stmt using systimestamp, user, bl.bl_level_names(level), grabbed_module, grabbed_action, lineout;
 	
 		exception
 			when bl_table_not_created then

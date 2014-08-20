@@ -37,6 +37,7 @@ as
 
 	-- BL Queue output settings
 	bl_queue			number 				:= 4;
+	bl_queue_name		varchar2(30)		:= 'BL_LOG_Q';
 
 	-- BL Module output settings
 	bl_module			number 				:= 5;
