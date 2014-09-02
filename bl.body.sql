@@ -15,7 +15,7 @@ as
 	begin
 
 		file_pointer := utl_file.fopen(bl.bl_directory_name, file_name, 'A', 32760);
-		utl_file.put_line(file_pointer, lineout);
+		utl_file.put_line(file_pointer, to_char(systimestamp, 'DD-MM-YYYY HH24:MI:SS') || ' - ' ||  lineout);
 		utl_file.fclose(file_pointer);
 
 		exception
@@ -149,6 +149,22 @@ as
 				raise;
 	
 	end stream_output_lines;
+
+	procedure bl_init (
+		bl_output_set					in				number	default bl.bl_dbms_output
+	)
+
+	as
+
+	begin
+
+		-- Clearing old settings
+		dbms_session.clear_context('BL_SETTINGS', null, 'BL_OUTPUT');
+
+		-- Initialize settings
+		dbms_session.set_context('BL_SETTINGS', 'BL_OUTPUT', bl_output_set);
+
+	end bl_init;
 
 	procedure o (
 		logstring						in				sys.anydata

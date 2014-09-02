@@ -12,11 +12,6 @@ as
 	-- Helper types
 	type num_arr is table of varchar2(4000) index by pls_integer;
 
-	-- BL Settings
-	bl_type_set			number				:= 3;
-	bl_linesize			pls_integer			:= 80;
-	bl_seperator		varchar2(50)		:= ' ';
-
 	-- BL Logging levels
 	bl_log				number				:= 3;
 	bl_trace			number				:= 2;
@@ -42,6 +37,19 @@ as
 	-- BL Module output settings
 	bl_module			number 				:= 5;
 	bl_module_name		varchar2(250)		:= 'DEFAULT';
+
+	-- BL Settings
+	bl_type_set			number				:= bl.bl_dbms_output;
+	bl_linesize			pls_integer			:= 80;
+	bl_seperator		varchar2(50)		:= ' ';
+
+	/** Initialize the logger with own settings instead of default compiled settings
+	* @author Morten Egan
+	* @param bl_output_set Set the output type for BetterLogging
+	*/
+	procedure bl_init (
+		bl_output_set					in				number	default bl.bl_dbms_output
+	);
 
 	/** Log anydata
 	* @author Morten Egan
