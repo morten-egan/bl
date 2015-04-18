@@ -16,39 +16,29 @@ as
 	bl_log				number				:= 3;
 	bl_trace			number				:= 2;
 	bl_debug			number				:= 1;
-	bl_default_level	number				:= bl.bl_log;
 	bl_level_names		num_arr;
 
-	-- BL DBMS_OUTPUT settings
+	-- BL output types
 	bl_dbms_output		number 				:= 1;
-
-	-- BL Table output settings
 	bl_table			number 				:= 2;
-	bl_table_name		varchar2(30) 		:= 'BL_LOG';
-
-	-- BL File output settings
 	bl_file				number 				:= 3;
-	bl_directory_name	varchar2(30)		:= 'BL_LOG_OUTPUT';
-
-	-- BL Queue output settings
 	bl_queue			number 				:= 4;
-	bl_queue_name		varchar2(30)		:= 'BL_LOG_Q';
-
-	-- BL Module output settings
 	bl_module			number 				:= 5;
-	bl_module_name		varchar2(250)		:= 'DEFAULT';
 
 	-- BL Settings
-	bl_type_set			number				:= bl.bl_dbms_output;
-	bl_linesize			pls_integer			:= 80;
 	bl_seperator		varchar2(50)		:= ' ';
+	bl_default_level	number				:= bl.bl_log;
+	bl_default_output	number				:= bl.bl_file;
 
 	/** Initialize the logger with own settings instead of default compiled settings
 	* @author Morten Egan
 	* @param bl_output_set Set the output type for BetterLogging
 	*/
 	procedure bl_init (
-		bl_output_set					in				number	default bl.bl_dbms_output
+		bl_output_set					in				number	default bl.bl_file
+		, bl_output_obj_name			in				varchar2 default 'DEFAULT'
+		, bl_linesize					in				number default 80
+		, bl_level						in				number default bl.bl_log
 	);
 
 	/** Log anydata
@@ -57,7 +47,7 @@ as
 	*/
 	procedure o (
 		logstring						in				sys.anydata
-		, loglevel						in				number default bl.bl_default_level
+		, loglevel						in				number default nvl(to_number(sys_context('BL_SETTINGS', 'BL_LEVEL')), bl.bl_default_level)
 	);
 
 	/** Log a char type
@@ -66,7 +56,7 @@ as
 	*/
 	procedure o (
 		logstring						in				varchar2
-		, loglevel						in				number default bl.bl_default_level
+		, loglevel						in				number default nvl(to_number(sys_context('BL_SETTINGS', 'BL_LEVEL')), bl.bl_default_level)
 	);
 
 	/** Log a clob type
@@ -75,7 +65,7 @@ as
 	*/
 	procedure o (
 		logstring						in				clob
-		, loglevel						in				number default bl.bl_default_level
+		, loglevel						in				number default nvl(to_number(sys_context('BL_SETTINGS', 'BL_LEVEL')), bl.bl_default_level)
 	);
 
 	/** Log a number type
@@ -84,7 +74,7 @@ as
 	*/
 	procedure o (
 		logstring						in				number
-		, loglevel						in				number default bl.bl_default_level
+		, loglevel						in				number default nvl(to_number(sys_context('BL_SETTINGS', 'BL_LEVEL')), bl.bl_default_level)
 	);
 
 	/** Log a date type
@@ -93,7 +83,7 @@ as
 	*/
 	procedure o (
 		logstring						in				date
-		, loglevel						in				number default bl.bl_default_level
+		, loglevel						in				number default nvl(to_number(sys_context('BL_SETTINGS', 'BL_LEVEL')), bl.bl_default_level)
 	);
 
 	/** Log a timestamp type
@@ -102,7 +92,7 @@ as
 	*/
 	procedure o (
 		logstring						in				timestamp
-		, loglevel						in				number default bl.bl_default_level
+		, loglevel						in				number default nvl(to_number(sys_context('BL_SETTINGS', 'BL_LEVEL')), bl.bl_default_level)
 	);
 
 	/** Log a boolean type
@@ -111,7 +101,7 @@ as
 	*/
 	procedure o (
 		logstring						in				boolean
-		, loglevel						in				number default bl.bl_default_level
+		, loglevel						in				number default nvl(to_number(sys_context('BL_SETTINGS', 'BL_LEVEL')), bl.bl_default_level)
 	);
 
 end bl;
